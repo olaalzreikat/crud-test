@@ -36,3 +36,70 @@ if (!fs.existsSync(dataDir)) {//checks if directory specified by dataDir does no
 //2: This is the space argument. It specifies the number of white spaces to use for indentation when formatting the JSON string. In this case, it will "pretty-print" the JSON with a 2-space indentation, making it more human-readable.
 
 }
+
+
+//safely reads and parses json files 
+function readFile(filePath) {
+    try {
+
+        //synchronously reads the content of the file at filePath as a UTF-8 string
+        //fs.readFileSync is a synchronous operation, meaning it blocks the event loop
+        //until the file has been fully read
+        //reads the file and turns it into JavaScript data
+
+        
+       // Read file: Load entire file content as UTF-8 string
+ // Parse JSON: Convert JSON string to JavaScript object
+        //This line reads the file, converts the file content into a text string, then parses that JSON text string into a JavaScript object or array, and immediately returns that parsed data structure back to the calling function.
+        return JSON.parse /* takes the text string, turns it into javascript object or array*/(fs.readFileSync(filePath, "utf8") /*reads everything inside the file, gets text as a string */);
+      } catch (error) {
+        //catches any error from file reading/parsing
+        console.log("No users file found, starting with empty array");
+        return [];
+      }
+}
+
+
+//permanantely deletes files parameter filePath
+function deleteFile(filePath) {
+    //checks if the file exists
+  if (fs.existsSync(filePath)) {
+    //if it does, delete it permanently
+    fs.unlinkSync(filePath);
+  }
+}
+
+
+//adds unique ID fields to array objects
+//data is the array of objects needing IDs
+function addId(data) {
+    //create new array with copied objects
+    //data.map() goes through each item in the original array and transforms it
+    //(item) => ({...item}) for each item, create a brand new object with all the same properties
+    // ...item spreads(copies) all properties from the original object into the new object
+  const copy = data.map((item) => ({ ...item })); 
+
+  //go through each object in the array, give me the object and it's position number
+  copy.forEach((item, index) => {
+    // if this object doesnt have an id property  
+    if (!item.id) {
+        //add an id property to this object item["id"] that takes the current timestamp and adding the positon number/index, then convert it to text
+      item["id"] = (Date.now() + index).toString();
+    }
+  });
+  return copy;
+  //return new array
+}
+
+
+//function that takes milliseconds as input
+function sleep(ms) {
+    //record the time when we started
+  const start = Date.now();
+  //keep looping as long as the elapsed time is less than the target milliseconds
+  while (Date.now() - start < ms) {} //empty means do nothing in the loop, just keep checking the time
+}
+
+
+module.exports = { writeFile, readFile, deleteFile, addId, sleep };
+//make all functions available to other files
